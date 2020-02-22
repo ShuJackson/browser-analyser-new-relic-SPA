@@ -43,24 +43,23 @@ export default class Breakdown extends Component {
     const apdexTarget = entity.settings.apdexTarget || .5; // TO DO - Should we set a default value?
     const frustratedApdex = Math.round((apdexTarget * 4) * 10)/10;
     const facetCase = `FACET CASES( WHERE duration <= ${apdexTarget} AS 'S', WHERE duration > ${apdexTarget} AND duration < ${frustratedApdex} AS 'T', WHERE duration >= ${frustratedApdex} AS 'F')`;
-
     const graphql = `{
       actor {
         account(id: ${entity.accountId}) {
-          cohorts: nrql(query: "FROM PageView SELECT uniqueCount(session) as 'sessions', count(*)/uniqueCount(session) as 'avgPageViews', median(duration) as 'medianDuration', percentile(duration, 75, 95,99), count(*) WHERE appName='${entity.name}' ${pageUrl ? `WHERE pageUrl = '${pageUrl}'` : ''} ${facetCase} SINCE ${durationInMinutes} MINUTES AGO") {
+          cohorts: nrql(query: "FROM BrowserInteraction SELECT uniqueCount(session) as 'sessions', count(*)/uniqueCount(session) as 'avgPageViews', median(duration) as 'medianDuration', percentile(duration, 75, 95,99), count(*) WHERE appName='${entity.name}' ${pageUrl ? `WHERE targetUrl = '${pageUrl}'` : ''} ${facetCase} SINCE ${durationInMinutes} MINUTES AGO") {
             results
             totalResult
           }
-          ${pageUrl ? `bounceRate:nrql(query: "FROM PageView SELECT funnel(session, ${pageUrl ? `WHERE pageUrl = '${pageUrl}'` : ''} as 'page', ${pageUrl ? `WHERE pageUrl != '${pageUrl}'` : ''} as 'nextPage') ${facetCase}") {
+          ${pageUrl ? `bounceRate:nrql(query: "FROM BrowserInteraction SELECT funnel(session, ${pageUrl ? `WHERE targetUrl = '${pageUrl}'` : ''} as 'page', ${pageUrl ? `WHERE targetUrl != '${pageUrl}'` : ''} as 'nextPage') ${facetCase}") {
               results
           }` : ''}
-          satisfied: nrql(query: "FROM PageView SELECT count(*), (max(timestamp)-min(timestamp)) as 'sessionLength' WHERE appName='${entity.name}' AND duration <= ${apdexTarget} ${pageUrl ? `WHERE pageUrl = '${pageUrl}'` : ''} FACET session limit MAX SINCE ${durationInMinutes} MINUTES AGO") {
+          satisfied: nrql(query: "FROM BrowserInteraction SELECT count(*), (max(timestamp)-min(timestamp)) as 'sessionLength' WHERE appName='${entity.name}' AND duration <= ${apdexTarget} ${pageUrl ? `WHERE targetUrl = '${pageUrl}'` : ''} FACET session limit MAX SINCE ${durationInMinutes} MINUTES AGO") {
             results
           }
-          tolerated: nrql(query: "FROM PageView SELECT count(*), (max(timestamp)-min(timestamp)) as 'sessionLength' WHERE appName='${entity.name}' AND duration > ${apdexTarget} AND duration < ${frustratedApdex} ${pageUrl ? `WHERE pageUrl = '${pageUrl}'` : ''} FACET session limit MAX SINCE ${durationInMinutes} MINUTES AGO") {
+          tolerated: nrql(query: "FROM BrowserInteraction SELECT count(*), (max(timestamp)-min(timestamp)) as 'sessionLength' WHERE appName='${entity.name}' AND duration > ${apdexTarget} AND duration < ${frustratedApdex} ${pageUrl ? `WHERE targetUrl = '${pageUrl}'` : ''} FACET session limit MAX SINCE ${durationInMinutes} MINUTES AGO") {
             results
           }
-          frustrated: nrql(query: "FROM PageView SELECT count(*), (max(timestamp)-min(timestamp)) as 'sessionLength' WHERE appName='${entity.name}' AND duration >= ${frustratedApdex} ${pageUrl ? `WHERE pageUrl = '${pageUrl}'` : ''} FACET session limit MAX SINCE ${durationInMinutes} MINUTES AGO") {
+          frustrated: nrql(query: "FROM BrowserInteraction SELECT count(*), (max(timestamp)-min(timestamp)) as 'sessionLength' WHERE appName='${entity.name}' AND duration >= ${frustratedApdex} ${pageUrl ? `WHERE targetUrl = '${pageUrl}'` : ''} FACET session limit MAX SINCE ${durationInMinutes} MINUTES AGO") {
             results
           }
 
@@ -95,6 +94,7 @@ export default class Breakdown extends Component {
   render() {
     const { entity, nerdletUrlState: { pageUrl }, platformUrlState: { timeRange: { duration }} } = this.props;
     const durationInMinutes = duration/1000/60;
+
     if (!entity) {
       //this shouldn't happen
       return <Spinner fillContainer />
@@ -295,7 +295,7 @@ export default class Breakdown extends Component {
             <TableChart
                 className="tableChart"
                 accountId={entity.accountId}
-                query={`FROM PageView SELECT count(*) as 'Page Count', average(duration) as 'Avg. Duration', apdex(duration, ${apdexTarget}) as 'Apdex' WHERE appName='${entity.name}' AND nr.apdexPerfZone in ('F', 'T') FACET pageUrl LIMIT 100 SINCE ${durationInMinutes} MINUTES AGO `}
+                query={`FROM BrowserInteraction SELECT count(*) as 'Page Count', average(duration) as 'Avg. Duration', apdex(duration, ${apdexTarget}) as 'Apdex' WHERE appName='${entity.name}' FACET targetUrl LIMIT 100 SINCE ${durationInMinutes} MINUTES AGO `}
                 onClickTable={(...args) => {
                     //console.debug(args);
                     this._openDetails(args[1].pageUrl);
