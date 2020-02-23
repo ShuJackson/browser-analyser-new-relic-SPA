@@ -1,3 +1,3 @@
-The SPA version for https://github.com/newrelic/nr1-browser-analyzer.
+The SPA version of https://github.com/newrelic/nr1-browser-analyzer.
 
 For information on how to get started, see the link above.
