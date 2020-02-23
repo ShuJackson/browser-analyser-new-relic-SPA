@@ -1,3 +1,3 @@
-The SPA version of https://github.com/newrelic/nr1-browser-analyzer.
+New Relic Browser Analyser nerdlet with SPA support.
 
-For information on how to get started, see the link above.
+For information on how to get started, see https://github.com/newrelic/nr1-browser-analyzer.
