@@ -51,22 +51,22 @@ export default class SummaryBar extends Component {
               <SparklineChart className="microchart wider" accountId={accountId} query={`FROM BrowserInteraction SELECT count(*) TIMESERIES SINCE ${durationInMinutes} MINUTES AGO WHERE appName = '${name}' ${pageUrl ? `WHERE targetUrl = '${pageUrl}'` : ''}`}/>
           </StackItem>
           <StackItem>
-              <BillboardChart className="microchart" accountId={accountId} query={`FROM BrowserInteraction SELECT average(duration) as 'Avg. Duration' SINCE ${durationInMinutes} MINUTES AGO WHERE appName = '${name}' ${pageUrl ? `WHERE targetUrl = '${pageUrl}'` : ''}`}/>
+              <BillboardChart className="microchart" accountId={accountId} query={`FROM BrowserInteraction SELECT percentile(duration, 50) as 'Avg. Duration' SINCE ${durationInMinutes} MINUTES AGO WHERE appName = '${name}' ${pageUrl ? `WHERE targetUrl = '${pageUrl}'` : ''}`}/>
           </StackItem>
           <StackItem>
-                  <SparklineChart className="microchart wider" accountId={accountId} query={`FROM BrowserInteraction SELECT average(duration) TIMESERIES SINCE ${durationInMinutes} MINUTES AGO WHERE appName = '${name}' ${pageUrl ? `WHERE targetUrl = '${pageUrl}'` : ''}`}/>
+                  <SparklineChart className="microchart wider" accountId={accountId} query={`FROM BrowserInteraction SELECT percentile(duration, 50) TIMESERIES SINCE ${durationInMinutes} MINUTES AGO WHERE appName = '${name}' ${pageUrl ? `WHERE targetUrl = '${pageUrl}'` : ''}`}/>
           </StackItem>
           <StackItem>
-              <BillboardChart className="microchart" accountId={accountId} query={`FROM PageViewTiming SELECT average(firstContentfulPaint) as 'First Contentful Paint' SINCE ${durationInMinutes} MINUTES AGO WHERE appName = '${name}' ${pageUrl ? `WHERE pageUrl = '${pageUrl}'` : ''}`}/>
+              <BillboardChart className="microchart" accountId={accountId} query={`FROM PageViewTiming SELECT percentile(firstContentfulPaint, 50) as 'First Contentful Paint' SINCE ${durationInMinutes} MINUTES AGO WHERE appName = '${name}' ${pageUrl ? `WHERE pageUrl = '${pageUrl}'` : ''}`}/>
           </StackItem>
           <StackItem>
-              <SparklineChart className="microchart wider" accountId={accountId} query={`FROM PageViewTiming SELECT average(firstContentfulPaint) TIMESERIES SINCE ${durationInMinutes} MINUTES AGO WHERE appName = '${name}' ${pageUrl ? `WHERE pageUrl = '${pageUrl}'` : ''}`}/>
+              <SparklineChart className="microchart wider" accountId={accountId} query={`FROM PageViewTiming SELECT percentile(firstContentfulPaint, 50) TIMESERIES SINCE ${durationInMinutes} MINUTES AGO WHERE appName = '${name}' ${pageUrl ? `WHERE pageUrl = '${pageUrl}'` : ''}`}/>
           </StackItem>
           <StackItem>
-              <BillboardChart className="microchart" accountId={accountId} query={`FROM PageViewTiming SELECT average(firstInteraction) as 'First Interaction' SINCE ${durationInMinutes} MINUTES AGO WHERE appName = '${name}' ${pageUrl ? `WHERE pageUrl = '${pageUrl}'` : ''}`}/>
+              <BillboardChart className="microchart" accountId={accountId} query={`FROM PageViewTiming SELECT percentile(firstInteraction, 50) as 'First Interaction' SINCE ${durationInMinutes} MINUTES AGO WHERE appName = '${name}' ${pageUrl ? `WHERE pageUrl = '${pageUrl}' AND firstInteraction < 300` : ''}`}/>
           </StackItem>
           <StackItem className="wider">
-              <SparklineChart className="microchart wider" accountId={accountId} query={`FROM PageViewTiming SELECT average(firstInteraction) TIMESERIES SINCE ${durationInMinutes} MINUTES AGO WHERE appName = '${name}' ${pageUrl ? `WHERE pageUrl = '${pageUrl}'` : ''}`}/>
+              <SparklineChart className="microchart wider" accountId={accountId} query={`FROM PageViewTiming SELECT percentile(firstInteraction, 50) TIMESERIES SINCE ${durationInMinutes} MINUTES AGO WHERE appName = '${name}' ${pageUrl ? `WHERE pageUrl = '${pageUrl}' AND firstInteraction < 300` : ''}`}/>
           </StackItem>
     <StackItem grow className="summaryEnd">{apmService && <Button className="apmButton" type={Button.TYPE.NORMAL} sizeType={Button.SIZE_TYPE.SLIM} onClick={() => { navigation.openStackedEntity(apmService.guid); }} iconType={apmService.iconType}>Upstream Service</Button>}</StackItem>
         </Stack>
